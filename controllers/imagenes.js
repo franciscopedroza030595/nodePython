@@ -18,7 +18,7 @@ const crearImagen = async(req, res = response) => {
 
     const { img } = req.body;
 
-    /* console.log(img); */
+
 
     let pyshell = new PythonShell('my_script.py');
 
@@ -28,58 +28,59 @@ const crearImagen = async(req, res = response) => {
     // sends a message to the Python script via stdin
     pyshell.send(JSON.stringify(img));
 
-    /* function getShellMessage(callback) { */
-    pyshell.on('message', function(message) {
-        // received a message sent from the Python script (a simple "print" statement)
+    function getShellMessage(callback) {
+        pyshell.on('message', function(message) {
+            // received a message sent from the Python script (a simple "print" statement)
 
-        myMessage = message;
-        console.log(myMessage);
-
-    });
-
-    // end the input stream and allow the process to exit
-    pyshell.end(function(err) {
-        if (err) {
-            throw err;
-        }
+            callback(null, message);
 
 
-    });
-    /* } */
+        });
+
+        // end the input stream and allow the process to exit
+        pyshell.end(function(err) {
+            if (err) {
+                callback(err);
+            }
+
+
+        });
+    }
     /* -------------------- */
-    /*     var codigo = '';
-        getShellMessage(function(err, message) {
-            //message is ready
-            console.log(message);
-
-
-        }); */
 
 
     try {
 
-        /* creo instancia del objeto  */
-        const imagen = new Imagen({
-            imgT: 'hola',
-            ...req.body
+        getShellMessage(async(err, message) => {
+            //message is ready
+
+            /* console.log(message); */
+            /* creo instancia del objeto  */
+            const imagen = new Imagen({
+                imgT: message,
+                ...req.body
+
+            });
+
+            /* para grabar en la base de datos  */
+            await imagen.save();
+
+            // generar un TOKEN - JWT
+            /*         const token = await generarJWT(concurso.id); */
+
+
+            res.json({
+                ok: true,
+                imagen,
+
+
+
+            });
 
         });
 
 
-        /* para grabar en la base de datos  */
-        await imagen.save();
 
-        // generar un TOKEN - JWT
-        /*         const token = await generarJWT(concurso.id); */
-
-
-        res.json({
-            ok: true,
-            imagen,
-
-
-
-        });
 
     } catch (error) {
         console.log(error);
