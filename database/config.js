@@ -1,0 +1,30 @@
+/* mongoose conexion entre mongoDB  y Nodejs */
+const mongoose = require('mongoose');
+
+/* creo funcion para establecer conexion */
+
+const dbConnection = async() => {
+
+    try {
+
+        await mongoose.connect(process.env.DB_C, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+            useFindAndModify: false
+
+        });
+
+        console.log('DB Online');
+
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error a la hora de iniciar la BD ver logs');
+    }
+
+}
+
+
+module.exports = {
+    dbConnection
+}
